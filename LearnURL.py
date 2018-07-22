@@ -7,9 +7,7 @@ import requests
 from bs4 import BeautifulSoup
 import re
 import pandas
-#sinaNewsURL = 'http://news.sina.com.cn/china'
 
-#1 - 获取china首页新闻列表（后面用不到, 可以用这个拿到新闻链接, 然后再测试新闻详情函数）
 
 def getNewsListData(newsURl):
     newsList = []

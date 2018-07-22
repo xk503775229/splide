@@ -1,16 +1,17 @@
 import json
-import urllib
-import requests
 import re
+from urllib import parse
 import requests
 from bs4 import BeautifulSoup
-from urllib import parse
-def getPageUrl(count, fip):
-    newsdata = {}
-    newslink = 'http://api.search.sina.com.cn/?c=news&q=%E8%8B%8F%E5%B7%9E&stime=2017-07-19&etime=2018-07-21&sort=rel&highlight=1&num=10&ie=utf-8'
 
-    newslink_2 = 'http://api.search.sina.com.cn/?c=news&t=&q=%E8%8B%8F%E5%B7%9E&pf=2131491050&ps=2130770168&page={}&stime=2017-07-20&etime=2018-07-22&sort=rel&highlight=1&num=10&ie=utf-8'.format(count)
-    newslink_3 = 'http://api.search.sina.com.cn/?c=news&t=&q=%E4%B8%AD%E5%9B%BD&pf=2131425523&ps=2130770168&page=2&stime=2017-07-20&etime=2018-07-22&sort=rel&highlight=1&num=10&ie=utf-8'
+'''
+获取相应的网址
+以及写入相应的文件
+'''
+
+def getPageUrl(count, fip, word):
+    newsdata = {}
+    newslink_2 = 'http://api.search.sina.com.cn/?c=news&t=&q={}&pf=2131491050&ps=2130770168&page={}&stime=2017-07-20&etime=2018-07-22&sort=rel&highlight=1&num=10&ie=utf-8'.format(parse.quote(word),count)
     comments = requests.get(newslink_2)
     comments.encoding = 'utf-8'
     soupContent = BeautifulSoup(comments.text, 'html.parser')
@@ -21,13 +22,15 @@ def getPageUrl(count, fip):
     jd = json.loads(res[0])
     for list in jd['result']['list']:
         # print(list['title'])
-        print(list['url'])
+        #print(list['url'])
+        # 去掉不是相关新闻的网址
         if list['url'].endswith('html') and 'slide.tech.sina.com.cn' not in list['url']:
             newsdata = getNewsDetail(list['url'])
-            json.dump(newsdata,fip)
-            json.dump('\n',fip)
+            fip.writelines(json.dumps(newsdata) +'\n')
 
-
+'''
+获取具体网址的内容
+'''
 
 def getNewsDetail(newsURL):
 
@@ -88,9 +91,14 @@ def getNewsDetail(newsURL):
 
 
 if __name__ == '__main__':
+    keyword = input("请输入要搜索的关键词:")
+    count = int(input("请输入需要的数目"))
+    page = int(count/10)
     fip = open("sinaSearchData.txt","w")
-    for i in range(1,2):
-        getPageUrl(i,fip)
+    #fip2 = open("sinaSearchData2.txt","w")
+    for i in range(1,page):
+        getPageUrl(i,fip,keyword)
     # content = "苏州"
     # keyNewsURl = 'http://www.sina.com.cn/mid/search.shtml?range=all&c=news&q={}&from=home&ie=utf-8'.format(content)
     # print(keyNewsURl)
+    fip.close()
