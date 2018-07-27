@@ -16,15 +16,16 @@ def getPageSource(url, page, keyWord, fip):
     driver = webdriver.PhantomJS()
     # 浏览器driver访问url
     driver.get(url)
-    # 隐式等待6秒，,等待js加载
-    driver.implicitly_wait(1)
-    # 设置10秒页面超时返回，类似于requests.get()的timeout选项，driver.get()没有timeout选项
-    driver.set_page_load_timeout(1)
+    # 隐式等待2秒，,等待js加载
+    driver.implicitly_wait(2)
+    # 设置秒页面超时返回，类似于requests.get()的timeout选项，driver.get()没有timeout选项
+    driver.set_page_load_timeout(2)
     # 获取网页资源（获取到的是网页所有数据）
     html = driver.page_source
     driver.quit()
     # 返回网页资源
     print(type(html))
+    #匹配数据
     r = re.compile('\{.*\}')
     res = re.findall(r, html)
     # print(res[0])
@@ -46,6 +47,7 @@ def dealWithData(pageData, keyword, fip):
 
     # 首先获取下一页的search_hash_id
     hash_id = pageData['search_action_info']['search_hash_id']
+    #print(hash_id)
     strData = pageData['paging']['next']
     print(strData)
 
@@ -104,13 +106,13 @@ def dealWithData(pageData, keyword, fip):
 if __name__ == '__main__':
     # 要搜索的关键字
     keyWord = '苏州'
-    # 需要搜索的页数 每页大概有9个
-    page = 50
+    # 需要搜索的页数 每页大概有9个,如果页码超出范围有可能会出错
+    page = 10
 
     fip = open('searchZhiHuData.txt', 'w')
     # 这个数字可以更改，要保证第一页有数据如果没有数据再次更改，最好是5的倍数（如果数据始终从无法输出可能是hash_id失效，需要我来手动更改）
-    offSet =  5
-    url = 'https://www.zhihu.com/api/v4/search_v3?t=general&q={}&correction=1&offset={}&limit=10&search_hash_id=d36e080a7691e307f5546d9146d73628'.format(
+    offSet =  10
+    url = 'https://www.zhihu.com/api/v4/search_v3?t=general&q={}&correction=1&offset={}&limit=10&search_hash_id=31ad7aa9055bdbb21dbf9b632369d670'.format(
         parse.quote(keyWord), offSet)
     getPageSource(url, page, keyWord, fip)
 
